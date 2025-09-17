@@ -1,0 +1,9 @@
+.cache/
+mochawesome-report/
+node_modules
+test-results
+public/
+.coveralls.yml
+.nyc_output
+coverage
+test-results/

@@ -1,0 +1,201 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Star Wars API",
+    "version": "1.0.0",
+    "description": "API REST de personagens Star Wars com autenticação JWT."
+  },
+  "servers": [
+    { "url": "http://localhost:3001" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    { "bearerAuth": [] }
+  ],
+  "paths": {
+    "/api/auth/token": {
+      "post": {
+        "summary": "Login de usuário (query params ou body)",
+        "security": [],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Token JWT" },
+          "400": { "description": "Usuário e senha obrigatórios" },
+          "401": { "description": "Credenciais inválidas" }
+        }
+      }
+    },
+    "/api/users/register": {
+      "post": {
+        "summary": "Registrar novo usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuário criado" },
+          "400": { "description": "Erro de validação" }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Listar todos os usuários (apenas master)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer" },
+                      "username": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "description": "Acesso negado" }
+        }
+      }
+    },
+    "/api/characters": {
+      "get": {
+        "summary": "Listar personagens Star Wars",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de personagens" }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar novo personagem Star Wars",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "status": { "type": "string" },
+                  "location": { "type": "string" },
+                  "lastSeen": { "type": "string" }
+                },
+                "required": ["name", "status", "location", "lastSeen"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Personagem criado" },
+          "400": { "description": "Erro de validação" },
+          "401": { "description": "Não autenticado" }
+        }
+      }
+    },
+    "/api/characters/{id}": {
+      "get": {
+        "summary": "Consultar personagem por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Dados do personagem" },
+          "404": { "description": "Personagem não encontrado" }
+        }
+      },
+      "put": {
+        "summary": "Alterar personagem Star Wars",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "status": { "type": "string" },
+                  "location": { "type": "string" },
+                  "lastSeen": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Personagem alterado" },
+          "400": { "description": "Erro de validação" },
+          "401": { "description": "Não autenticado" },
+          "404": { "description": "Personagem não encontrado" }
+        }
+      }
+    }
+  }
+}

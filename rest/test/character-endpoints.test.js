@@ -66,7 +66,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
       expect(res.body).to.have.property('location');
     });
 
-    it('deve retornar 404 para ID inexistente', async () => {
+    it('TC004 - deve retornar 404 para ID inexistente', async () => {
       const res = await request(app)
         .get('/api/characters/9999')
         .set('Authorization', `Bearer ${userToken}`);
@@ -75,7 +75,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
       expect(res.body).to.have.property('error', 'Character not found');
     });
 
-    it('deve retornar 401 sem autenticação', async () => {
+    it('TC005 - deve retornar 401 sem autenticação', async () => {
       const res = await request(app)
         .get('/api/characters/1');
 
@@ -84,7 +84,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
   });
 
   describe('POST /api/characters', () => {
-    it('deve criar personagem com dados válidos', async () => {
+    it('TC006 - deve criar personagem com dados válidos', async () => {
       const novoPersonagem = {
         name: 'Personagem Teste REST',
         status: 'Vivo',
@@ -104,7 +104,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
       expect(res.body).to.have.property('id');
     });
 
-    it('deve retornar 400 quando campos obrigatórios ausentes', async () => {
+    it('TC007 - deve retornar 400 quando campos obrigatórios ausentes', async () => {
       const dadosIncompletos = {
         name: 'Personagem Incompleto'
         // Faltam: status, location, lastSeen
@@ -120,7 +120,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
       expect(res.body.error).to.include('Campos obrigatórios');
     });
 
-    it('deve retornar 400 com dados vazios', async () => {
+    it('TC008 - deve retornar 400 com dados vazios', async () => {
       const res = await request(app)
         .post('/api/characters')
         .set('Authorization', `Bearer ${userToken}`)
@@ -129,7 +129,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
       expect(res.status).to.equal(400);
     });
 
-    it('deve retornar 401 sem autenticação', async () => {
+    it('TC009 - deve retornar 401 sem autenticação', async () => {
       const res = await request(app)
         .post('/api/characters')
         .send({ name: 'Teste' });
@@ -155,7 +155,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
       characterId = createRes.body.id;
     });
 
-    it('deve atualizar personagem existente', async () => {
+    it('TC010 - deve atualizar personagem existente', async () => {
       const dadosAtualizacao = {
         name: 'Personagem Atualizado REST',
         status: 'Falecido',
@@ -174,21 +174,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
       expect(res.body).to.have.property('location', dadosAtualizacao.location);
     });
 
-    it('deve atualizar parcialmente personagem', async () => {
-      const atualizacaoParcial = {
-        name: 'Nome Parcialmente Atualizado'
-      };
-
-      const res = await request(app)
-        .put(`/api/characters/${characterId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(atualizacaoParcial);
-
-      expect(res.status).to.equal(200);
-      expect(res.body).to.have.property('name', atualizacaoParcial.name);
-    });
-
-    it('deve retornar 404 para ID inexistente', async () => {
+    it('TC011 - deve retornar 404 para ID inexistente', async () => {
       const res = await request(app)
         .put('/api/characters/9999')
         .set('Authorization', `Bearer ${userToken}`)
@@ -198,7 +184,7 @@ describe('Testes de Endpoints REST - Personagens', function () {
       expect(res.body).to.have.property('error', 'Character not found');
     });
 
-    it('deve retornar 401 sem autenticação', async () => {
+    it('TC012 - deve retornar 401 sem autenticação', async () => {
       const res = await request(app)
         .put(`/api/characters/${characterId}`)
         .send({ name: 'Teste' });

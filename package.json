@@ -12,7 +12,7 @@
     "test": "mocha test/*.test.js --timeout 15000 --exit",
     "test:rest": "mocha test/*-controller.test.js test/rest-api.test.js test/basic-api.test.js rest/test/*.test.js --timeout 15000 --exit",
     "test:rest-endpoints": "mocha rest/test/*.test.js --timeout 15000 --exit",
-    "test:graphql": "mocha graphql/test/*.js --timeout 15000 --exit",
+    "test:graphql": "mocha graphql/test/*.test.js --timeout 15000 --exit",
     "test:unit": "mocha test/*-controller.test.js test/graphql-resolvers.test.js --timeout 15000 --exit",
     "test:integration": "mocha test/rest-api.test.js test/basic-api.test.js --timeout 15000 --exit",
     "test:report": "mocha test/*.test.js --timeout 15000 --exit --reporter mochawesome --reporter-options reportDir=test-results,reportFilename=test-report",

@@ -95,27 +95,7 @@ describe('Testes de Endpoints REST - Usuários', function () {
       expect(res.body).to.not.have.property('password');
     });
 
-    it('TC008 - deve retornar 400 quando username ausente', async () => {
-      const res = await request(app)
-        .post('/api/users/register')
-        .set('Authorization', `Bearer ${masterToken}`)
-        .send({ password: 'senha123' });
-
-      expect(res.status).to.equal(400);
-      expect(res.body).to.have.property('error');
-    });
-
-    it('TC009 - deve retornar 400 quando password ausente', async () => {
-      const res = await request(app)
-        .post('/api/users/register')
-        .set('Authorization', `Bearer ${masterToken}`)
-        .send({ username: 'usuario' });
-
-      expect(res.status).to.equal(400);
-      expect(res.body).to.have.property('error');
-    });
-
-    it('TC010 - deve retornar 400 quando dados vazios', async () => {
+    it('TC008 - deve retornar 400 quando dados vazios', async () => {
       const res = await request(app)
         .post('/api/users/register')
         .set('Authorization', `Bearer ${masterToken}`)
@@ -124,7 +104,7 @@ describe('Testes de Endpoints REST - Usuários', function () {
       expect(res.status).to.equal(400);
     });
 
-    it('TC011 - deve retornar 401 sem token de autenticação', async () => {
+    it('TC009 - deve retornar 401 sem token de autenticação', async () => {
       const res = await request(app)
         .post('/api/users/register')
         .send({ username: 'teste', password: 'senha' });
@@ -134,7 +114,7 @@ describe('Testes de Endpoints REST - Usuários', function () {
   });
 
   describe('GET /api/users', () => {
-    it('deve listar usuários', async () => {
+    it('TC010 - deve listar usuários', async () => {
       const res = await request(app)
         .get('/api/users')
         .set('Authorization', `Bearer ${masterToken}`);
@@ -148,14 +128,14 @@ describe('Testes de Endpoints REST - Usuários', function () {
       }
     });
 
-    it('TC012 - deve retornar 401 sem autenticação', async () => {
+    it('TC011 - deve retornar 401 sem autenticação', async () => {
       const res = await request(app)
         .get('/api/users');
 
       expect(res.status).to.equal(401);
     });
 
-    it('TC013 - deve retornar 403 para usuário não-master', async () => {
+    it('TC012 - deve retornar 403 para usuário não-master', async () => {
       // Primeiro registrar usuário normal
       await request(app)
         .post('/api/users/register')

@@ -3,8 +3,16 @@ const userService = require('../service/userService');
 
 exports.register = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await userService.register(username, password);
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email e senha são obrigatórios' });
+    }
+    // Validar formato do email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Formato de email inválido' });
+    }
+    const user = await userService.register(username, email, password);
     res.status(201).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -13,20 +21,18 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    // Permitir login via query params ou body
-    const username = req.body.username || req.query.username;
-    const password = req.body.password || req.query.password;
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Usuário e senha obrigatórios' });
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email e senha obrigatórios' });
     }
     // Tenta login master
     const { masterLogin } = require('../service/authService');
-    const masterToken = masterLogin(username, password);
+    const masterToken = masterLogin(email, password);
     if (masterToken) {
       return res.json({ token: masterToken });
     }
     // Login normal
-    const token = await userService.login(username, password);
+    const token = await userService.login(email, password);
     res.json({ token });
   } catch (err) {
     res.status(401).json({ error: err.message });
@@ -47,13 +53,9 @@ exports.getMe = async (req, res) => {
 };
 
 exports.getAll = async (req, res) => {
-  // Só permite se for master
-  if (!req.user || !req.user.master) {
-    return res.status(403).json({ error: 'Acesso negado' });
-  }
   const User = require('../model/user');
   // Retorna todos os usuários cadastrados (sem senha)
-  const users = (User.getAll ? await User.getAll() : []).map(u => ({ id: u.id, username: u.username }));
+  const users = (User.getAll ? await User.getAll() : []).map(u => ({ id: u.id, username: u.username, email: u.email }));
   res.json(users);
 };
 

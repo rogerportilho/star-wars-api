@@ -11,9 +11,17 @@ function authenticateJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
+    
+    // Verificar se o token está na blacklist
+    const TokenBlacklist = require('../model/tokenBlacklist');
+    if (TokenBlacklist.isBlacklisted(token)) {
+      return res.status(401).json({ error: 'Token inválido (logout realizado)' });
+    }
+    
     try {
       const user = jwt.verify(token, JWT_SECRET);
       req.user = user;
+      req.token = token; // Salvar token para usar no logout
       return next();
     } catch (err) {
       return res.status(401).json({ error: 'Token inválido' });
@@ -23,10 +31,10 @@ function authenticateJWT(req, res, next) {
 }
 
 // Função para login do usuário master
-function masterLogin(username, password) {
+function masterLogin(usernameOrEmail, password) {
   if (
-    username &&
-    username.toLowerCase() === MASTER_USER.username.toLowerCase() &&
+    usernameOrEmail &&
+    usernameOrEmail.toLowerCase() === MASTER_USER.username.toLowerCase() &&
     password === MASTER_USER.password
   ) {
     // Retorna um token JWT para o usuário master

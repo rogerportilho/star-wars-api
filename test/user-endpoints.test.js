@@ -1,7 +1,7 @@
 const request = require('supertest');
 const { expect } = require('chai');
 const express = require('express');
-const createRestApp = require('../app');
+const createRestApp = require('../rest/app');
 
 describe('Testes de Endpoints REST - Usuários', function () {
   this.timeout(15000);

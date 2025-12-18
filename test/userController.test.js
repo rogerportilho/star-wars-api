@@ -1,6 +1,6 @@
 const sinon = require('sinon');
-const userController = require('../../controller/userController');
-const userService = require('../../service/userService');
+const userController = require('../controller/userController');
+const userService = require('../service/userService');
 const { expect } = require('chai');
 
 describe('userController', () => {

@@ -26,28 +26,54 @@ jobs:
 
     - name: Start REST API Server
       run: |
+        echo "Starting server..."
         npm start &
-        sleep 10
+        SERVER_PID=$!
+        echo "Server PID: $SERVER_PID"
+        sleep 15
+        echo "Server should be running now"
       env:
         NODE_ENV: production
         JWT_SECRET: starwars_secret
         REST_PORT: 3001
 
+    - name: Check if server process is running
+      run: |
+        ps aux | grep node || echo "No node processes found"
+        netstat -tlnp | grep :3001 || echo "Port 3001 not listening"
+
     - name: Wait for server to be ready
       run: |
-        timeout 60 bash -c 'until curl -s -f http://localhost:3001/api-docs > /dev/null; do echo "Waiting for server..."; sleep 3; done'
-        echo "Server is ready!"
+        echo "Waiting for server to respond..."
+        for i in {1..20}; do
+          if curl -s -f http://localhost:3001/api-docs > /dev/null; then
+            echo "Server is ready after $i attempts!"
+            break
+          else
+            echo "Attempt $i: Server not ready yet, waiting 3s..."
+            sleep 3
+          fi
+        done
 
     - name: Test server connectivity
       run: |
-        curl -I http://localhost:3001/api-docs
-        curl -s http://localhost:3001/api-docs | head -10
+        echo "Testing server connectivity..."
+        curl -I http://localhost:3001/api-docs || echo "Failed to get headers"
+        curl -s http://localhost:3001/api-docs | head -20 || echo "Failed to get content"
+        
+        echo "Testing API endpoints..."
+        curl -s http://localhost:3001/api/users || echo "Users endpoint failed"
+
+    - name: Run health check
+      run: node scripts/health-check.js
+      env:
+        BASE_URL: http://localhost:3001
 
     - name: Setup K6
       uses: grafana/k6-action@v0.3.1
       with:
-        filename: test/k6/starwars-characters.test.js
-        flags: --env BASE_URL=http://localhost:3001 --verbose
+        filename: test/k6/starwars-characters-ci.test.js
+        flags: --env BASE_URL=http://localhost:3001 --verbose --http-debug
       env:
         K6_BROWSER_ENABLED: false
 

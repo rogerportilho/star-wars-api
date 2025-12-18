@@ -212,8 +212,8 @@
 
 	export function handleSummary(data) {
 		return {
-			"reports/starwars-characters-report.html": htmlReport(data),
-			"reports/starwars-characters-summary.json": JSON.stringify(data, null, 2),
+			"test/k6/reports/starwars-characters-report.html": htmlReport(data),
+			"test/k6/reports/starwars-characters-summary.json": JSON.stringify(data, null, 2),
 			stdout: textSummary(data, { indent: " ", enableColors: true }),
 		};
 	}

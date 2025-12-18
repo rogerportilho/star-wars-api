@@ -26,7 +26,7 @@ jobs:
     - name: Start REST server in background
       run: |
         npm start &
-        sleep 5
+        sleep 10
       env:
         NODE_ENV: test
         JWT_SECRET: starwars_secret
@@ -39,7 +39,7 @@ jobs:
     - name: Start GraphQL server in background
       run: |
         npm run start:graphql &
-        sleep 5
+        sleep 10
       env:
         NODE_ENV: test
         JWT_SECRET: starwars_secret

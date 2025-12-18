@@ -16,18 +16,18 @@ describe('Testes de Endpoints REST - Personagens', function () {
     // Obter token master
     const masterRes = await request(app)
       .post('/api/auth/token')
-      .send({ username: 'Rogerio', password: '123456' });
+      .send({ email: 'Rogerio', password: '123456' });
     masterToken = masterRes.body.token;
 
     // Registrar e obter token de usuário normal
+    const userEmail = 'testuser' + Date.now() + '@test.com';
     await request(app)
       .post('/api/users/register')
-      .set('Authorization', `Bearer ${masterToken}`)
-      .send({ username: 'testuser', password: 'testpass' });
+      .send({ username: 'testuser', email: userEmail, password: 'testpass' });
 
     const userRes = await request(app)
       .post('/api/auth/token')
-      .send({ username: 'testuser', password: 'testpass' });
+      .send({ email: userEmail, password: 'testpass' });
     userToken = userRes.body.token;
   });
 

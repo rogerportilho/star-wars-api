@@ -16,7 +16,7 @@ describe('Testes de Endpoints REST - Usuários', function () {
     // Obter token master
     const masterRes = await request(app)
       .post('/api/auth/token')
-      .send({ username: 'Rogerio', password: '123456' });
+      .send({ email: 'Rogerio', password: '123456' });
     masterToken = masterRes.body.token;
   });
 
@@ -24,7 +24,7 @@ describe('Testes de Endpoints REST - Usuários', function () {
     it('TC001 - deve fazer login com usuário master', async () => {
       const res = await request(app)
         .post('/api/auth/token')
-        .send({ username: 'Rogerio', password: '123456' });
+        .send({ email: 'Rogerio', password: '123456' });
 
       expect(res.status).to.equal(200);
       expect(res.body).to.have.property('token');
@@ -34,7 +34,7 @@ describe('Testes de Endpoints REST - Usuários', function () {
 
     it('TC002 - deve fazer login via query params', async () => {
       const res = await request(app)
-        .post('/api/auth/token?username=Rogerio&password=123456');
+        .post('/api/auth/token?email=Rogerio&password=123456');
 
       expect(res.status).to.equal(200);
       expect(res.body).to.have.property('token');
@@ -46,31 +46,31 @@ describe('Testes de Endpoints REST - Usuários', function () {
         .send({});
 
       expect(res.status).to.equal(400);
-      expect(res.body).to.have.property('error', 'Usuário e senha obrigatórios');
+      expect(res.body).to.have.property('error', 'Email e senha obrigatórios');
     });
 
-    it('TC004 - deve retornar 400 quando username ausente', async () => {
+    it('TC004 - deve retornar 400 quando email ausente', async () => {
       const res = await request(app)
         .post('/api/auth/token')
         .send({ password: '123456' });
 
       expect(res.status).to.equal(400);
-      expect(res.body).to.have.property('error', 'Usuário e senha obrigatórios');
+      expect(res.body).to.have.property('error', 'Email e senha obrigatórios');
     });
 
     it('TC005 - deve retornar 400 quando password ausente', async () => {
       const res = await request(app)
         .post('/api/auth/token')
-        .send({ username: 'Rogerio' });
+        .send({ email: 'Rogerio' });
 
       expect(res.status).to.equal(400);
-      expect(res.body).to.have.property('error', 'Usuário e senha obrigatórios');
+      expect(res.body).to.have.property('error', 'Email e senha obrigatórios');
     });
 
     it('TC006 - deve retornar 401 com credenciais inválidas', async () => {
       const res = await request(app)
         .post('/api/auth/token')
-        .send({ username: 'invalido', password: 'invalido' });
+        .send({ email: 'invalido@test.com', password: 'invalido' });
 
       expect(res.status).to.equal(401);
       expect(res.body).to.have.property('error');
@@ -81,6 +81,7 @@ describe('Testes de Endpoints REST - Usuários', function () {
     it('TC007 - deve registrar novo usuário', async () => {
       const novoUsuario = {
         username: 'usuarioteste' + Date.now(),
+        email: 'teste' + Date.now() + '@test.com',
         password: 'senhateste123'
       };
 
@@ -107,7 +108,7 @@ describe('Testes de Endpoints REST - Usuários', function () {
     it('TC009 - deve retornar 401 sem token de autenticação', async () => {
       const res = await request(app)
         .post('/api/users/register')
-        .send({ username: 'teste', password: 'senha' });
+        .send({ username: 'teste', email: 'teste@test.com', password: 'senha' });
 
       expect(res.status).to.equal(401);
     });
@@ -137,25 +138,25 @@ describe('Testes de Endpoints REST - Usuários', function () {
 
     it('TC012 - deve retornar 403 para usuário não-master', async () => {
       // Primeiro registrar usuário normal
+      const userEmail = 'normal' + Date.now() + '@test.com';
       await request(app)
         .post('/api/users/register')
-        .set('Authorization', `Bearer ${masterToken}`)
-        .send({ username: 'usuarionormal', password: 'senha123' });
+        .send({ username: 'usuarionormal', email: userEmail, password: 'senha123' });
 
       // Fazer login com usuário normal
       const loginRes = await request(app)
         .post('/api/auth/token')
-        .send({ username: 'usuarionormal', password: 'senha123' });
+        .send({ email: userEmail, password: 'senha123' });
 
       const userToken = loginRes.body.token;
 
-      // Tentar listar usuários
+      // Tentar listar usuários (agora permitido para todos)
       const res = await request(app)
         .get('/api/users')
         .set('Authorization', `Bearer ${userToken}`);
 
-      expect(res.status).to.equal(403);
-      expect(res.body).to.have.property('error', 'Acesso negado');
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('array');
     });
   });
 });

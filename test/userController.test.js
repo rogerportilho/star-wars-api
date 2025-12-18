@@ -7,16 +7,16 @@ describe('userController', () => {
   afterEach(() => sinon.restore());
 
   it('TC001 - register - sucesso', async () => {
-    const req = { body: { username: 'yoda', password: 'jedi' } };
+    const req = { body: { username: 'yoda', email: 'yoda@jedi.com', password: 'jedi' } };
     const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
-    sinon.stub(userService, 'register').resolves({ id: 1, username: 'yoda' });
+    sinon.stub(userService, 'register').resolves({ id: 1, username: 'yoda', email: 'yoda@jedi.com' });
     await userController.register(req, res);
     expect(res.status.calledWith(201)).to.be.true;
-    expect(res.json.calledWith({ id: 1, username: 'yoda' })).to.be.true;
+    expect(res.json.calledWith({ id: 1, username: 'yoda', email: 'yoda@jedi.com' })).to.be.true;
   });
 
   it('TC002 - register - usuário duplicado', async () => {
-    const req = { body: { username: 'yoda', password: 'jedi' } };
+    const req = { body: { username: 'yoda', email: 'yoda@jedi.com', password: 'jedi' } };
     const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
     sinon.stub(userService, 'register').throws(new Error('Usuário já existe'));
     await userController.register(req, res);
@@ -25,7 +25,7 @@ describe('userController', () => {
   });
 
   it('TC003 - login - sucesso', async () => {
-    const req = { body: { username: 'yoda', password: 'jedi' } };
+    const req = { body: { email: 'yoda@jedi.com', password: 'jedi' } };
     const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
     sinon.stub(userService, 'login').resolves('token123');
     await userController.login(req, res);
@@ -33,7 +33,7 @@ describe('userController', () => {
   });
 
   it('TC004 - login - erro', async () => {
-    const req = { body: { username: 'yoda', password: 'errado' } };
+    const req = { body: { email: 'yoda@jedi.com', password: 'errado' } };
     const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
     sinon.stub(userService, 'login').throws(new Error('Senha inválida'));
     await userController.login(req, res);

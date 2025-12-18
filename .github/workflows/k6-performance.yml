@@ -26,21 +26,28 @@ jobs:
 
     - name: Start REST API Server
       run: |
-        node rest/server.js &
-        sleep 5
+        npm start &
+        sleep 10
       env:
+        NODE_ENV: production
         JWT_SECRET: starwars_secret
         REST_PORT: 3001
 
     - name: Wait for server to be ready
       run: |
-        timeout 30 bash -c 'until curl -f http://localhost:3001/api-docs; do sleep 2; done'
+        timeout 60 bash -c 'until curl -s -f http://localhost:3001/api-docs > /dev/null; do echo "Waiting for server..."; sleep 3; done'
+        echo "Server is ready!"
+
+    - name: Test server connectivity
+      run: |
+        curl -I http://localhost:3001/api-docs
+        curl -s http://localhost:3001/api-docs | head -10
 
     - name: Setup K6
       uses: grafana/k6-action@v0.3.1
       with:
         filename: test/k6/starwars-characters.test.js
-        flags: --env BASE_URL=http://localhost:3001
+        flags: --env BASE_URL=http://localhost:3001 --verbose
       env:
         K6_BROWSER_ENABLED: false
 

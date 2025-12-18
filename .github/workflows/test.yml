@@ -2,7 +2,7 @@ name: Tests
 
 on: 
   push:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master ]
 
@@ -14,14 +14,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js 20.x
+    - name: Setup Node.js 18.x
       uses: actions/setup-node@v4
       with:
-        node-version: 20.x
+        node-version: '18'
         cache: 'npm'
 
     - name: Install dependencies
       run: npm ci
+
+    - name: Start REST server in background
+      run: |
+        npm start &
+        sleep 5
+      env:
+        NODE_ENV: test
+        JWT_SECRET: starwars_secret
+        REST_PORT: 3001
+
+    - name: Wait for REST server
+      run: |
+        timeout 30 bash -c 'until curl -f http://localhost:3001/api-docs; do sleep 2; done'
 
     - name: Start GraphQL server in background
       run: |
@@ -29,17 +42,25 @@ jobs:
         sleep 5
       env:
         NODE_ENV: test
+        JWT_SECRET: starwars_secret
+        GRAPHQL_PORT: 3002
 
-    - name: Run REST endpoint tests
-      run: npm run test:rest-endpoints
+    - name: Wait for GraphQL server
+      run: |
+        timeout 30 bash -c 'until curl -f http://localhost:3002/graphql; do sleep 2; done'
 
-    - name: Run GraphQL tests
-      run: npm run test:graphql
+    - name: Run all tests
+      run: npm test
+      env:
+        NODE_ENV: test
+        JWT_SECRET: starwars_secret
 
     - name: Generate test report
-      run: |
-        npx mocha rest/test/*.test.js graphql/test/*.test.js --timeout 15000 --exit --reporter mochawesome --reporter-options reportDir=test-results,reportFilename=test-report
+      run: npm run test:report
       if: always()
+      env:
+        NODE_ENV: test
+        JWT_SECRET: starwars_secret
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
